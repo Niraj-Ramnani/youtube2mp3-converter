@@ -45,6 +45,6 @@ app.post("/convert-mp3" , async (req,res) =>{
     }
 })
 
-app.listen(PORT , ()=>{
-     console.log(`Server started on the port ${PORT}`);
-})
+const { createServer } = require('@vercel/node');
+
+module.exports = createServer(app);
