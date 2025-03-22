@@ -1,8 +1,10 @@
 const express = require("express");
+const serverless = require("serverless-http");
 const fetch = require("node-fetch");
 require("dotenv").config();
 
 const app = express();
+const router = express.Router();
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
@@ -10,12 +12,13 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get("/", (req, res) => {
+router.get("/", (req, res) => {
   res.render("index");
 });
 
-app.post("/convert-mp3", async (req, res) => {
-  const videolink = req.body.videolink; 
+router.post("/convert-mp3", async (req, res) => {
+  const videolink = req.body.videolink;
+
   if (!videolink) {
     return res.render("index", { success: false, message: "Please enter a video link" });
   }
@@ -45,5 +48,8 @@ app.post("/convert-mp3", async (req, res) => {
   }
 });
 
+// **Important: Use router for Netlify instead of app**
+app.use("/.netlify/functions/api", router);
 
 module.exports = app;
+module.exports.handler = serverless(app);
