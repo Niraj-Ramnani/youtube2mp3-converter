@@ -7,24 +7,20 @@ require("dotenv").config();
 const app = express();
 const router = express.Router();
 
-// Set EJS as the view engine
-app.set("views", path.join(__dirname, "views"));  // ✅ Ensure views are inside `netlify/functions/`
+// Set correct paths for views and static files
+app.set("views", path.join(__dirname, "views")); // ✅ Fix for Netlify Functions
 app.set("view engine", "ejs");
 
-// Middleware
-app.use(express.static(path.join(__dirname, "../public")));  // ✅ Serve static files correctly
+app.use(express.static(path.join(__dirname, "../../public"))); // ✅ Adjusted path
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Routes
 router.get("/", (req, res) => {
-  res.render("index");
+    res.render("index");
 });
 
 router.post("/convert-mp3", async (req, res) => {
     const videolink = req.body.videolink;
-    console.log(videolink);
-
     if (!videolink) {
         return res.render("index", { success: false, message: "Please enter a video link" });
     }
@@ -39,7 +35,6 @@ router.post("/convert-mp3", async (req, res) => {
         });
 
         const fetchResponse = await fetchAPI.json();
-
         if (fetchResponse.success) {
             return res.render("index", { success: true, song_title: fetchResponse.title, song_link: fetchResponse.download });
         } else {
@@ -51,8 +46,6 @@ router.post("/convert-mp3", async (req, res) => {
     }
 });
 
-// Apply routes
 app.use("/.netlify/functions/api", router);
 
-// Export for Netlify Functions
 module.exports.handler = serverless(app);
